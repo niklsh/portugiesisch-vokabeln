@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portugiesisch-Deutsch Vokabeltrainer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 30px;
+            justify-content: center;
+            background: rgba(240, 248, 255, 0.5);
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            transform: translateY(-2px);
+        }
+
+        .vocab-section {
+            padding: 40px;
+            display: none;
+        }
+
+        .vocab-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .vocab-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vocab-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .portuguese {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .pronunciation {
+            font-size: 1.1em;
+            color: #e74c3c;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 12px;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 5px 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .german {
+            font-size: 1.2em;
+            color: #27ae60;
+            font-weight: 500;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            text-align: center;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .stats h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .vocab-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                padding: 20px;
+            }
+            
+            .nav-btn {
+                padding: 10px 16px;
+                font-size: 0.9em;
+            }
+            
+            .vocab-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇧🇷 Portugiesisch - Deutsch 🇩🇪</h1>
+            <p>Interaktiver Vokabeltrainer mit IPA-Aussprache</p>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showSection('bahn')">🚊 Bahn</button>
+            <button class="nav-btn" onclick="showSection('farben')">🎨 Farben</button>
+            <button class="nav-btn" onclick="showSection('koerper')">👤 Körper</button>
+            <button class="nav-btn" onclick="showSection('phrasen')">💬 Schlüsselphrasen</button>
+            <button class="nav-btn" onclick="showSection('wetter')">🌤️ Wetter</button>
+            <button class="nav-btn" onclick="showSection('tiere')">🐾 Tiere</button>
+            <button class="nav-btn" onclick="showSection('katzen')">🐱 Katzen</button>
+            <button class="nav-btn" onclick="showSection('arbeit')">💼 Arbeit</button>
+            <button class="nav-btn" onclick="showSection('begruessung')">👋 Begrüßung</button>
+            <button class="nav-btn" onclick="showSection('wohnung')">🏠 Wohnung</button>
+            <button class="nav-btn" onclick="showSection('kochen')">👨‍🍳 Kochen</button>
+            <button class="nav-btn" onclick="showSection('obst')">🍎 Obst & Gemüse</button>
+        </div>
+
+        <div id="bahn" class="vocab-section active">
+            <h2 class="section-title">🚊 Bahn & Transport</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">trem</div>
+                    <div class="pronunciation">[ˈtɾẽ]</div>
+                    <div class="german">der Zug</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">estação</div>
+                    <div class="pronunciation">[es.ta.ˈsɐ̃w̃]</div>
+                    <div class="german">der Bahnhof</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">plataforma</div>
+                    <div class="pronunciation">[pla.ta.ˈfoʁ.ma]</div>
+                    <div class="german">der Bahnsteig</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">bilhete</div>
+                    <div class="pronunciation">[bi.ˈʎe.t͡ʃi]</div>
+                    <div class="german">das Ticket</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">metrô</div>
+                    <div class="pronunciation">[me.ˈtɾo]</div>
+                    <div class="german">die U-Bahn</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">ônibus</div>
+                    <div class="pronunciation">[ˈõ.ni.bus]</div>
+                    <div class="german">der Bus</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">táxi</div>
+                    <div class="pronunciation">[ˈtak.si]</div>
+                    <div class="german">das Taxi</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">horário</div>
+                    <div class="pronunciation">[o.ˈɾa.ɾi.u]</div>
+                    <div class="german">der Fahrplan</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">passagem</div>
+                    <div class="pronunciation">[pa.ˈsa.ʒẽ]</div>
+                    <div class="german">die Fahrkarte</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">destino</div>
+                    <div class="pronunciation">[des.ˈt͡ʃi.nu]</div>
+                    <div class="german">das Ziel</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="farben" class="vocab-section">
+            <h2 class="section-title">🎨 Farben</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">vermelho</div>
+                    <div class="pronunciation">[veʁ.ˈme.ʎu]</div>
+                    <div class="german">rot</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">azul</div>
+                    <div class="pronunciation">[a.ˈzuw]</div>
+                    <div class="german">blau</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">verde</div>
+                    <div class="pronunciation">[ˈveʁ.d͡ʒi]</div>
+                    <div class="german">grün</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">amarelo</div>
+                    <div class="pronunciation">[a.ma.ˈɾe.lu]</div>
+                    <div class="german">gelb</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">branco</div>
+                    <div class="pronunciation">[ˈbɾɐ̃.ku]</div>
+                    <div class="german">weiß</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">preto</div>
+                    <div class="pronunciation">[ˈpɾe.tu]</div>
+                    <div class="german">schwarz</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">roxo</div>
+                    <div class="pronunciation">[ˈʁo.ʃu]</div>
+                    <div class="german">lila</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">rosa</div>
+                    <div class="pronunciation">[ˈʁo.za]</div>
+                    <div class="german">rosa</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">laranja</div>
+                    <div class="pronunciation">[la.ˈɾɐ̃.ʒa]</div>
+                    <div class="german">orange</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">cinza</div>
+                    <div class="pronunciation">[ˈsĩ.za]</div>
+                    <div class="german">grau</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="koerper" class="vocab-section">
+            <h2 class="section-title">👤 Körper</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">cabeça</div>
+                    <div class="pronunciation">[ka.ˈbe.sa]</div>
+                    <div class="german">der Kopf</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">olhos</div>
+                    <div class="pronunciation">[ˈo.ʎus]</div>
+                    <div class="german">die Augen</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">nariz</div>
+                    <div class="pronunciation">[na.ˈɾis]</div>
+                    <div class="german">die Nase</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">boca</div>
+                    <div class="pronunciation">[ˈbo.ka]</div>
+                    <div class="german">der Mund</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">braço</div>
+                    <div class="pronunciation">[ˈbɾa.su]</div>
+                    <div class="german">der Arm</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">mão</div>
+                    <div class="pronunciation">[ˈmɐ̃w̃]</div>
+                    <div class="german">die Hand</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">perna</div>
+                    <div class="pronunciation">[ˈpeʁ.na]</div>
+                    <div class="german">das Bein</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">pé</div>
+                    <div class="pronunciation">[ˈpɛ]</div>
+                    <div class="german">der Fuß</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">coração</div>
+                    <div class="pronunciation">[ko.ɾa.ˈsɐ̃w̃]</div>
+                    <div class="german">das Herz</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">ouvido</div>
+                    <div class="pronunciation">[ow.ˈvi.du]</div>
+                    <div class="german">das Ohr</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="phrasen" class="vocab-section">
+            <h2 class="section-title">💬 Schlüsselphrasen</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">por favor</div>
+                    <div class="pronunciation">[poʁ fa.ˈvoʁ]</div>
+                    <div class="german">bitte</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">obrigado/a</div>
+                    <div class="pronunciation">[o.bɾi.ˈɡa.du/da]</div>
+                    <div class="german">danke</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">desculpa</div>
+                    <div class="pronunciation">[des.ˈkuw.pa]</div>
+                    <div class="german">entschuldigung</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">com licença</div>
+                    <div class="pronunciation">[kõ li.ˈsẽ.sa]</div>
+                    <div class="german">entschuldigen Sie</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">não entendo</div>
+                    <div class="pronunciation">[ˈnɐ̃w̃ ẽ.ˈtẽ.du]</div>
+                    <div class="german">ich verstehe nicht</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">você fala alemão?</div>
+                    <div class="pronunciation">[vo.ˈse ˈfa.la a.le.ˈmɐ̃w̃]</div>
+                    <div class="german">sprechen Sie Deutsch?</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">quanto custa?</div>
+                    <div class="pronunciation">[ˈkwɐ̃.tu ˈkus.ta]</div>
+                    <div class="german">wie viel kostet das?</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">onde fica?</div>
+                    <div class="pronunciation">[ˈõ.d͡ʒi ˈfi.ka]</div>
+                    <div class="german">wo ist?</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">que horas são?</div>
+                    <div class="pronunciation">[ki ˈo.ɾas ˈsɐ̃w̃]</div>
+                    <div class="german">wie spät ist es?</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">posso ajudar?</div>
+                    <div class="pronunciation">[ˈpo.su a.ʒu.ˈdaʁ]</div>
+                    <div class="german">kann ich helfen?</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="wetter" class="vocab-section">
+            <h2 class="section-title">🌤️ Wetter</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">sol</div>
+                    <div class="pronunciation">[ˈsɔw]</div>
+                    <div class="german">die Sonne</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">chuva</div>
+                    <div class="pronunciation">[ˈʃu.va]</div>
+                    <div class="german">der Regen</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">vento</div>
+                    <div class="pronunciation">[ˈvẽ.tu]</div>
+                    <div class="german">der Wind</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">nuvem</div>
+                    <div class="pronunciation">[ˈnu.vẽ]</div>
+                    <div class="german">die Wolke</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">tempestade</div>
+                    <div class="pronunciation">[tẽ.pẽs.ˈta.d͡ʒi]</div>
+                    <div class="german">der Sturm</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">neve</div>
+                    <div class="pronunciation">[ˈne.vi]</div>
+                    <div class="german">der Schnee</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">calor</div>
+                    <div class="pronunciation">[ka.ˈloʁ]</div>
+                    <div class="german">die Hitze</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">frio</div>
+                    <div class="pronunciation">[ˈfɾi.u]</div>
+                    <div class="german">die Kälte</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">temperatura</div>
+                    <div class="pronunciation">[tẽ.pe.ɾa.ˈtu.ɾa]</div>
+                    <div class="german">die Temperatur</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">umidade</div>
+                    <div class="pronunciation">[u.mi.ˈda.d͡ʒi]</div>
+                    <div class="german">die Feuchtigkeit</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tiere" class="vocab-section">
+            <h2 class="section-title">🐾 Tiere</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">cachorro</div>
+                    <div class="pronunciation">[ka.ˈʃo.ʁu]</div>
+                    <div class="german">der Hund</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">gato</div>
+                    <div class="pronunciation">[ˈɡa.tu]</div>
+                    <div class="german">die Katze</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">pássaro</div>
+                    <div class="pronunciation">[ˈpa.sa.ɾu]</div>
+                    <div class="german">der Vogel</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">peixe</div>
+                    <div class="pronunciation">[ˈpej.ʃi]</div>
+                    <div class="german">der Fisch</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">cavalo</div>
+                    <div class="pronunciation">[ka.ˈva.lu]</div>
+                    <div class="german">das Pferd</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">vaca</div>
+                    <div class="pronunciation">[ˈva.ka]</div>
+                    <div class="german">die Kuh</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">porco</div>
+                    <div class="pronunciation">[ˈpoʁ.ku]</div>
+                    <div class="german">das Schwein</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">coelho</div>
+                    <div class="pronunciation">[ko.ˈe.ʎu]</div>
+                    <div class="german">das Kaninchen</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">rato</div>
+                    <div class="pronunciation">[ˈʁa.tu]</div>
+                    <div class="german">die Maus</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">borboleta</div>
+                    <div class="pronunciation">[boʁ.bo.ˈle.ta]</div>
+                    <div class="german">der Schmetterling</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="katzen" class="vocab-section">
+            <h2 class="section-title">🐱 Katzen</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">gato</div>
+                    <div class="pronunciation">[ˈɡa.tu]</div>
+                    <div class="german">die Katze</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">gatinho</div>
+                    <div class="pronunciation">[ɡa.ˈt͡ʃi.ɲu]</div>
+                    <div class="german">das Kätzchen</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">miau</div>
+                    <div class="pronunciation">[mi.ˈaw]</div>
+                    <div class="german">miau</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">ronronar</div>
+                    <div class="pronunciation">[ʁõ.ʁo.ˈnaɾ]</div>
+                    <div class="german">schnurren</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">bigode</div>
+                    <div class="pronunciation">[bi.ˈɡo.d͡ʒi]</div>
+                    <div class="german">der Schnurrbart</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">pata</div>
+                    <div class="pronunciation">[ˈpa.ta]</div>
+                    <div class="german">die Pfote</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">rabo</div>
+                    <div class="pronunciation">[ˈʁa.bu]</div>
+                    <div class="german">der Schwanz</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">pelo</div>
+                    <div class="pronunciation">[ˈpe.lu]</div>
+                    <div class="german">das Fell</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">arranhar</div>
+                    <div class="pronunciation">[a.ʁɐ̃.ˈɲaɾ]</div>
+                    <div class="german">kratzen</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">caixa de areia</div>
+                    <div class="pronunciation">[ˈkaj.ʃa d͡ʒi a.ˈɾej.a]</div>
+                    <div class="german">das Katzenklo</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="arbeit" class="vocab-section">
+            <h2 class="section-title">💼 Arbeit</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">trabalho</div>
+                    <div class="pronunciation">[tɾa.ˈba.ʎu]</div>
+                    <div class="german">die Arbeit</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">escritório</div>
+                    <div class="pronunciation">[es.kɾi.ˈto.ɾi.u]</div>
+                    <div class="german">das Büro</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">chefe</div>
+                    <div class="pronunciation">[ˈʃe.fi]</div>
+                    <div class="german">der Chef</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">colega</div>
+                    <div class="pronunciation">[ko.ˈle.ɡa]</div>
+                    <div class="german">der Kollege</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">reunião</div>
+                    <div class="pronunciation">[ʁe.u.ni.ˈɐ̃w̃]</div>
+                    <div class="german">die Besprechung</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">computador</div>
+                    <div class="pronunciation">[kõ.pu.ta.ˈdoʁ]</div>
+                    <div class="german">der Computer</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">projeto</div>
+                    <div class="pronunciation">[pɾo.ˈʒe.tu]</div>
+                    <div class="german">das Projekt</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">salário</div>
+                    <div class="pronunciation">[sa.ˈla.ɾi.u]</div>
+                    <div class="german">das Gehalt</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">férias</div>
+                    <div class="pronunciation">[ˈfɛ.ɾi.as]</div>
+                    <div class="german">der Urlaub</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">empresa</div>
+                    <div class="pronunciation">[ẽ.ˈpɾe.za]</div>
+                    <div class="german">das Unternehmen</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="begruessung" class="vocab-section">
+            <h2 class="section-title">👋 Kennenlernen & Begrüßung</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">olá</div>
+                    <div class="pronunciation">[o.ˈla]</div>
+                    <div class="german">hallo</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">bom dia</div>
+                    <div class="pronunciation">[ˈbõ ˈd͡ʒi.a]</div>
+                    <div class="german">guten Morgen</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">boa tarde</div>
+                    <div class="pronunciation">[ˈbo.a ˈtaʁ.d͡ʒi]</div>
+                    <div class="german">guten Tag</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">boa noite</div>
+                    <div class="pronunciation">[ˈbo.a ˈnoj.t͡ʃi]</div>
+                    <div class="german">guten Abend</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">tchau</div>
+                    <div class="pronunciation">[ˈt͡ʃaw]</div>
+                    <div class="german">tschüss</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">até logo</div>
+                    <div class="pronunciation">[a.ˈte ˈlo.ɡu]</div>
+                    <div class="german">bis bald</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">meu nome é</div>
+                    <div class="pronunciation">[ˈmew ˈno.mi ɛ]</div>
+                    <div class="german">mein Name ist</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">prazer</div>
+                    <div class="pronunciation">[pɾa.ˈzeɾ]</div>
+                    <div class="german">freut mich</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">como vai?</div>
+                    <div class="pronunciation">[ˈko.mu ˈvaj]</div>
+                    <div class="german">wie geht's?</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">de onde você é?</div>
+                    <div class="pronunciation">[d͡ʒi ˈõ.d͡ʒi vo.ˈse ɛ]</div>
+                    <div class="german">woher kommen Sie?</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="wohnung" class="vocab-section">
+            <h2 class="section-title">🏠 Wohnung</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">casa</div>
+                    <div class="pronunciation">[ˈka.za]</div>
+                    <div class="german">das Haus</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">apartamento</div>
+                    <div class="pronunciation">[a.paɾ.ta.ˈmẽ.tu]</div>
+                    <div class="german">die Wohnung</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">quarto</div>
+                    <div class="pronunciation">[ˈkwaɾ.tu]</div>
+                    <div class="german">das Zimmer</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">cozinha</div>
+                    <div class="pronunciation">[ko.ˈzĩ.ɲa]</div>
+                    <div class="german">die Küche</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">banheiro</div>
+                    <div class="pronunciation">[ba.ˈɲej.ɾu]</div>
+                    <div class="german">das Badezimmer</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">sala</div>
+                    <div class="pronunciation">[ˈsa.la]</div>
+                    <div class="german">das Wohnzimmer</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">cama</div>
+                    <div class="pronunciation">[ˈkɐ̃.ma]</div>
+                    <div class="german">das Bett</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">mesa</div>
+                    <div class="pronunciation">[ˈme.za]</div>
+                    <div class="german">der Tisch</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">cadeira</div>
+                    <div class="pronunciation">[ka.ˈdej.ɾa]</div>
+                    <div class="german">der Stuhl</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">janela</div>
+                    <div class="pronunciation">[ʒa.ˈne.la]</div>
+                    <div class="german">das Fenster</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="kochen" class="vocab-section">
+            <h2 class="section-title">👨‍🍳 Kochen</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">cozinhar</div>
+                    <div class="pronunciation">[ko.zi.ˈɲaɾ]</div>
+                    <div class="german">kochen</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">fogão</div>
+                    <div class="pronunciation">[fo.ˈɡɐ̃w̃]</div>
+                    <div class="german">der Herd</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">panela</div>
+                    <div class="pronunciation">[pa.ˈne.la]</div>
+                    <div class="german">der Topf</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">frigideira</div>
+                    <div class="pronunciation">[fɾi.ʒi.ˈdej.ɾa]</div>
+                    <div class="german">die Pfanne</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">faca</div>
+                    <div class="pronunciation">[ˈfa.ka]</div>
+                    <div class="german">das Messer</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">garfo</div>
+                    <div class="pronunciation">[ˈɡaɾ.fu]</div>
+                    <div class="german">die Gabel</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">colher</div>
+                    <div class="pronunciation">[ko.ˈʎeɾ]</div>
+                    <div class="german">der Löffel</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">prato</div>
+                    <div class="pronunciation">[ˈpɾa.tu]</div>
+                    <div class="german">der Teller</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">receita</div>
+                    <div class="pronunciation">[ʁe.ˈsej.ta]</div>
+                    <div class="german">das Rezept</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">tempero</div>
+                    <div class="pronunciation">[tẽ.ˈpe.ɾu]</div>
+                    <div class="german">das Gewürz</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="obst" class="vocab-section">
+            <h2 class="section-title">🍎 Obst & Gemüse</h2>
+            <div class="vocab-grid">
+                <div class="vocab-card">
+                    <div class="portuguese">maçã</div>
+                    <div class="pronunciation">[ma.ˈsɐ̃]</div>
+                    <div class="german">der Apfel</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">banana</div>
+                    <div class="pronunciation">[ba.ˈnɐ̃.na]</div>
+                    <div class="german">die Banane</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">laranja</div>
+                    <div class="pronunciation">[la.ˈɾɐ̃.ʒa]</div>
+                    <div class="german">die Orange</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">tomate</div>
+                    <div class="pronunciation">[to.ˈma.t͡ʃi]</div>
+                    <div class="german">die Tomate</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">batata</div>
+                    <div class="pronunciation">[ba.ˈta.ta]</div>
+                    <div class="german">die Kartoffel</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">cenoura</div>
+                    <div class="pronunciation">[se.ˈnow.ɾa]</div>
+                    <div class="german">die Karotte</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">alface</div>
+                    <div class="pronunciation">[aw.ˈfa.si]</div>
+                    <div class="german">der Salat</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">cebola</div>
+                    <div class="pronunciation">[se.ˈbo.la]</div>
+                    <div class="german">die Zwiebel</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">morango</div>
+                    <div class="pronunciation">[mo.ˈɾɐ̃.ɡu]</div>
+                    <div class="german">die Erdbeere</div>
+                </div>
+                <div class="vocab-card">
+                    <div class="portuguese">abacaxi</div>
+                    <div class="pronunciation">[a.ba.ka.ˈʃi]</div>
+                    <div class="german">die Ananas</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h3>📊 Vokabel-Statistiken</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">120</span>
+                    <div>Vokabeln gesamt</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">12</span>
+                    <div>Kategorien</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <div>Mit IPA-Aussprache</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">🇧🇷</span>
+                    <div>Brasilianisches Portugiesisch</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.vocab-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Add hover effects and interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.vocab-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Add a subtle animation when clicked
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                    
+                    // Try to speak the Portuguese word (if browser supports it)
+                    const portugueseText = this.querySelector('.portuguese').textContent;
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(portugueseText);
+                        utterance.lang = 'pt-BR';
+                        utterance.rate = 0.8;
+                        speechSynthesis.speak(utterance);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
